@@ -5,13 +5,11 @@
 
 import scrapy
 
-
-class ProyectoSansilvestreItem(scrapy.Item):
-    nombre = scrapy.Field()
-    tiempo = scrapy.Field()
-    categoria = scrapy.Field()
-    genero = scrapy.Field()
-    distancia = scrapy.Field()
-    fecha = scrapy.Field()
-    ubicacion = scrapy.Field()
-   
+class RunnerItem(scrapy.Item):
+    runner_name = scrapy.Field()
+    finish_time = scrapy.Field()
+    age_group = scrapy.Field()
+    gender = scrapy.Field()
+    race_distance = scrapy.Field()
+    race_date = scrapy.Field()
+    location = scrapy.Field()

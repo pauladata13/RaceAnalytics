@@ -17,15 +17,21 @@ ADDONS = {}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
-ROBOTSTXT_OBEY = False
-False
+ROBOTSTXT_OBEY = True
+
 # Concurrency and throttling settings
 #CONCURRENT_REQUESTS = 16
-CONCURRENT_REQUESTS_PER_DOMAIN = 1
-DOWNLOAD_DELAY = 1
+CONCURRENT_REQUESTS = 32      
+CONCURRENT_REQUESTS_PER_DOMAIN = 32
+DOWNLOAD_DELAY = 0.5
 
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = True
+
+ITEM_PIPELINES = {
+    'proyecto_sansilvestre.pipelines.SanSilvestrePipeline': 300,
+}
+
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -37,7 +43,7 @@ DEFAULT_REQUEST_HEADERS = {
    'Accept-Encoding': 'gzip, deflate, br',
    'Connection': 'keep-alive',
 }
-
+FEED_EXPORT_ENCODING = 'utf-8'
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
