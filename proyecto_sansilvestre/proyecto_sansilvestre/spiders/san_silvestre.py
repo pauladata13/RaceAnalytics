@@ -29,22 +29,22 @@ class SanSilvestreSpider(scrapy.Spider):
         fecha = response.meta.get('fecha')
         filas = response.css('table tbody tr')
         
-        if fecha in self.distancias_cache:
-            distancia_fija = self.distancias_cache[fecha]
-            for fila in filas:
-                item = self.extraer_datos_tabla(fila, response.meta) 
-                item['race_distance'] = distancia_fija
+        for fila in filas:
+            item = self.extraer_datos_tabla(fila, response.meta)
+            perfil_url = fila.css('td.nombre a::attr(href)').get()
+            
+            if fecha in self.distancias_cache:
+                item['race_distance'] = self.distancias_cache[fecha]
                 yield item
-        else:
-            for i, fila in enumerate(filas):
-                item = self.extraer_datos_tabla(fila, response.meta)  
-                perfil_url = fila.css('td.nombre a::attr(href)').get()
-                
-                if i == 0 and perfil_url:  
-                    yield response.follow(perfil_url, callback=self.parse_perfil, meta={'item': item})
-                else:
-                    item['race_distance'] = "Pendiente..." 
-                    yield item
+            
+
+            elif perfil_url:
+               
+                yield response.follow(perfil_url, callback=self.parse_perfil, meta={'item': item})
+            
+            else:
+                item['race_distance'] = "distancia no disponible"
+                yield item
     
         siguiente = response.css('li.next a::attr(href)').get()
         if siguiente:
