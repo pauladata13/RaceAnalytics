@@ -1,3 +1,4 @@
+from urllib import response
 import scrapy
 from proyecto_sansilvestre.items import RunnerItem
 
@@ -31,24 +32,24 @@ class SanSilvestreSpider(scrapy.Spider):
         if fecha in self.distancias_cache:
             distancia_fija = self.distancias_cache[fecha]
             for fila in filas:
-                item = self.crear_item_base(fila, response.meta)
+                item = self.extraer_datos_tabla(fila, response.meta) 
                 item['race_distance'] = distancia_fija
                 yield item
         else:
-           
             for i, fila in enumerate(filas):
-                item = self.crear_item_base(fila, response.meta)
+                item = self.extraer_datos_tabla(fila, response.meta)  
                 perfil_url = fila.css('td.nombre a::attr(href)').get()
                 
                 if i == 0 and perfil_url:  
                     yield response.follow(perfil_url, callback=self.parse_perfil, meta={'item': item})
                 else:
-                    
                     item['race_distance'] = "Pendiente..." 
                     yield item
+    
         siguiente = response.css('li.next a::attr(href)').get()
         if siguiente:
             yield response.follow(siguiente, callback=self.parse_resultados, meta=response.meta)
+
 
     def extraer_datos_tabla(self, fila, meta):
         item = RunnerItem()
