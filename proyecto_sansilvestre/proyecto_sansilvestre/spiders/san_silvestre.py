@@ -55,7 +55,15 @@ class SanSilvestreSpider(scrapy.Spider):
         item = RunnerItem()
         item['runner_name'] = f"{fila.css('td.nombre a::text').get('')} {fila.css('td.apellidos a::text').get('')}".strip()
         item['finish_time'] = fila.css('td.tiempo_display::text').get()
-        item['age_group'] = fila.css('td.get_puesto_categoria_display::text').get()
+
+        # Get age group w/o place in race
+        age_group=None
+        raw_agegroup=fila.css('td.get_puesto_categoria_display::text').get()
+        if raw_agegroup and "-" in raw_agegroup:
+            splitted_agegroup=raw_agegroup.split("-")
+            age_group=splitted_agegroup[0]
+
+        item['age_group'] = age_group
         item['gender'] = fila.css('td.get_puesto_sexo_display::text').get()
         item['race_date'] = meta.get('fecha')
         item['location'] = meta.get('location')
@@ -68,7 +76,7 @@ class SanSilvestreSpider(scrapy.Spider):
         distancia = response.xpath('//tr[td[contains(text(), "META")]]/td[last()]/text()').get()
         if not distancia:
             distancias = response.xpath('//td[contains(text(), " m")]/text()').getall()
-            distancia = distancias[-1] if distancias else "N/A"
+            distancia = distancias[-1] if distancias else None
         
       
         self.distancias_cache[fecha] = distancia
