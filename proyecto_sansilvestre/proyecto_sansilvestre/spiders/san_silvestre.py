@@ -64,7 +64,15 @@ class SanSilvestreSpider(scrapy.Spider):
             age_group=splitted_agegroup[0]
 
         item['age_group'] = age_group
-        item['gender'] = fila.css('td.get_puesto_sexo_display::text').get()
+
+        # Get gender w/o place in race
+        gender=None
+        raw_gender=fila.css('td.get_puesto_sexo_display::text').get()
+        if raw_gender and "-" in raw_gender:
+            splitted_gender=raw_gender.split("-")
+            gender=splitted_gender[0]
+
+        item['gender'] = gender
         item['race_date'] = meta.get('fecha')
         item['location'] = meta.get('location')
         return item
