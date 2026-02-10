@@ -2,7 +2,10 @@ import json
 import time
 import mysql.connector
 from mysql.connector import Error
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 # Configuration
 JSON_FILE='proyecto_sansilvestre/carreras_san_silvestre.json'
 DB_CONFIG={
