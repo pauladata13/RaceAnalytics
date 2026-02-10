@@ -132,16 +132,22 @@ elif view_mode == "Runner Analysis":
 
     if search_query:
         mask = df_all['runner_name'].str.upper().str.startswith(search_query.upper())
-        filtered_runners = sorted(df_all[mask]['runner_name'].unique())
+        filtered_runners = sorted(df_all[mask]['runner_name'].unique())[:10]
 
         if len(filtered_runners) > 0:
-            selected_runner = st.selectbox("Select a runner from results:", filtered_runners)
+            selected_runner = st.selectbox(
+                f'Results for "{search_query}"', 
+                options=filtered_runners,
+                index=None,
+                placeholder="Click to select runner...")
         else:
             st.warning("No runners found with that name.")
     else:
         st.info("Please type a name to start searching.")
 
     if selected_runner:
+        st.divider()
+
         runner_history = df_all[df_all['runner_name'] == selected_runner].copy()
 
         st.subheader(f"{selected_runner.split(' ')[0]}'s history")
@@ -176,7 +182,11 @@ elif view_mode == "Runner Analysis":
             })
 
         df_display = pd.DataFrame(history_data)
-        st.dataframe(df_display[['Edition', 'Time', 'Position', 'Pace']], use_container_width=True)
+        st.dataframe(
+            df_display[['Edition', 'Time', 'Position', 'Pace']], 
+            use_container_width=True,
+            hide_index=True
+        )
 
         st.markdown("---")
         st.subheader("Visual comparison")
@@ -203,5 +213,12 @@ elif view_mode == "Runner Analysis":
             )
 
             fig2.add_vline(x=my_time, line_width=3, line_dash="dash", line_color="red")
+            
+            # Mejoras visuales en el gráfico
+            fig2.update_layout(
+                showlegend=False,
+                plot_bgcolor="white",
+                margin=dict(t=50, l=0, r=0, b=0)
+            )
 
             st.plotly_chart(fig2, use_container_width=True)
