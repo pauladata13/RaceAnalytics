@@ -77,17 +77,25 @@ if view_mode == "Race Analysis":
     race_options = df_all[['location', 'year', 'race_id']].drop_duplicates()
     race_options['label'] = race_options['location'] + " (" + race_options['year'].astype(str) + ")"
     
-    selected_race_label = st.selectbox("Select edition:", race_options['label'])
+    list_of_races = sorted(race_options['label'].unique().tolist())
+    dropdown_options = ["All Races"] + list_of_races
+    selected_option = st.selectbox("Select edition:", options=dropdown_options)
     
-    selected_race_id = race_options[race_options['label'] == selected_race_label]['race_id'].values[0]
-
-    df_race = df_all[df_all['race_id'] == selected_race_id].copy()
+    if selected_option == "All Races":
+        df_race = df_all.copy()
+        chart_title = "Time distribution (All Races)"
+    else:
+        selected_race_id = race_options[race_options['label'] == selected_option]['race_id'].values[0]
+        df_race = df_all[df_all['race_id'] == selected_race_id].copy()
+        chart_title = f"Time distribution ({selected_option})"
 
     col1, col2 = st.columns(2)
     with col1:
-        gender_filter = st.multiselect("Filter by gender:", options=df_race['gender'].unique(), default=df_race['gender'].unique())
+        gender_options = sorted(df_race['gender'].unique().astype(str))
+        gender_filter = st.multiselect("Filter by gender:", options=gender_options, default=gender_options)
     with col2:
-        age_filter = st.multiselect("Filtrar por Edad:", options=df_race['age_group'].unique(), default=df_race['age_group'].unique())
+        age_options = sorted(df_race['age_group'].unique().astype(str))
+        age_filter = st.multiselect("Filter by age group:", options=age_options, default=age_options)
 
     df_filtered = df_race[
         (df_race['gender'].isin(gender_filter)) & 
@@ -114,7 +122,7 @@ if view_mode == "Race Analysis":
         )
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.warning("No data.")
+        st.warning("No data found for selected filters.")
 
 elif view_mode == "Runner Analysis":
     st.title("👤 Runner Analysis")
