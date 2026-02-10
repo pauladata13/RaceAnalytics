@@ -127,16 +127,14 @@ if view_mode == "Race Analysis":
 elif view_mode == "Runner Analysis":
     st.title("👤 Runner Analysis")
 
-    search_query = st.text_input("Search runner by name:")
+    search_query = st.text_input("Search runner by name:", placeholder="Type name and press Enter")
     selected_runner = None
 
     if search_query:
-        # Filtramos los nombres que contengan el texto (sin importar mayúsculas/minúsculas)
-        mask = df_all['runner_name'].str.contains(search_query, case=False, na=False)
+        mask = df_all['runner_name'].str.upper().str.startswith(search_query.upper())
         filtered_runners = sorted(df_all[mask]['runner_name'].unique())
 
         if len(filtered_runners) > 0:
-            # Mostramos el dropdown SOLO con los resultados encontrados
             selected_runner = st.selectbox("Select a runner from results:", filtered_runners)
         else:
             st.warning("No runners found with that name.")
