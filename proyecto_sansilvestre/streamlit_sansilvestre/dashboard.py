@@ -127,13 +127,26 @@ if view_mode == "Race Analysis":
 elif view_mode == "Runner Analysis":
     st.title("👤 Runner Analysis")
 
-    runner_list = sorted(df_all['runner_name'].unique())
-    selected_runner = st.selectbox("Select a participant:", runner_list)
+    search_query = st.text_input("Search runner by name:")
+    selected_runner = None
+
+    if search_query:
+        # Filtramos los nombres que contengan el texto (sin importar mayúsculas/minúsculas)
+        mask = df_all['runner_name'].str.contains(search_query, case=False, na=False)
+        filtered_runners = sorted(df_all[mask]['runner_name'].unique())
+
+        if len(filtered_runners) > 0:
+            # Mostramos el dropdown SOLO con los resultados encontrados
+            selected_runner = st.selectbox("Select a runner from results:", filtered_runners)
+        else:
+            st.warning("No runners found with that name.")
+    else:
+        st.info("Please type a name to start searching.")
 
     if selected_runner:
         runner_history = df_all[df_all['runner_name'] == selected_runner].copy()
 
-        st.subheader(f"{selected_runner.split(" ")[0]}'s history")
+        st.subheader(f"{selected_runner.split(' ')[0]}'s history")
         
         history_data = []
         
