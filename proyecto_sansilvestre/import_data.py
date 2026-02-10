@@ -6,10 +6,10 @@ from mysql.connector import Error
 # Configuration
 JSON_FILE='proyecto_sansilvestre/carreras_san_silvestre.json'
 DB_CONFIG={
-    'host':'localhost',
-    'user':'root',
-    'password':'root',
-    'database':'sansilvestre_db'
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_NAME')
 }
 
 def create_tables(cursor):
