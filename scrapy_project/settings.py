@@ -9,8 +9,8 @@
 
 BOT_NAME = "proyecto_sansilvestre"
 
-SPIDER_MODULES = ["proyecto_sansilvestre.spiders"]
-NEWSPIDER_MODULE = "proyecto_sansilvestre.spiders"
+SPIDER_MODULES = ['scrapy_project.spiders']
+NEWSPIDER_MODULE = 'scrapy_project.spiders'
 
 ADDONS = {}
 
@@ -32,7 +32,7 @@ DOWNLOAD_TIMEOUT = 5
 COOKIES_ENABLED = False
 
 ITEM_PIPELINES = {
-    'proyecto_sansilvestre.pipelines.SanSilvestrePipeline': 300,
+    'scrapy_project.pipelines.SanSilvestrePipeline': 300,
 }
 
 

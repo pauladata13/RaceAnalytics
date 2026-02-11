@@ -8,7 +8,7 @@ The project consist in fetching race results from San Silvestre's race editions 
 The requirements to run this project are listed in `requirements.txt`.
 
 ## TUTORIAL
-1. Install all python dependencies listed in the file mentioned before.
+1. Install all python dependencies listed in the file mentioned before into your environment.
 2. Run the spider to start fetching race results.
 ```terminal
 scrapy crawl san_silvestre -o carrera_san_silvestre.json

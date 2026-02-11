@@ -1,5 +1,5 @@
 import scrapy
-from proyecto_sansilvestre.items import RunnerItem
+from scrapy_project.items import RunnerItem
 
 class SanSilvestreSpider(scrapy.Spider):
     name = "san_silvestre"
