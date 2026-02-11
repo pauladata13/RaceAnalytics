@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 # Configuration
-JSON_FILE='proyecto_sansilvestre/carreras_san_silvestre.json'
+JSON_FILE='proyecto_sansilvestre/carrera_san_silvestre.json'
 DB_CONFIG={
     'host': os.getenv('DB_HOST'),
     'user': os.getenv('DB_USER'),
@@ -44,7 +44,7 @@ def create_tables(cursor):
         runner_id INT NOT NULL,
         race_id INT NOT NULL,
         finish_time TIME,
-        age_group VARCHAR(6),
+        age_group VARCHAR(10),
         FOREIGN KEY (runner_id) REFERENCES runners(id) ON DELETE CASCADE,
         FOREIGN KEY (race_id) REFERENCES races(id) ON DELETE CASCADE
     );
@@ -115,9 +115,9 @@ def import_data():
         print(f"\(^-^)/ Done!\nAll data was imported to '{DB_CONFIG['database']}' successfully\n\nSTEPS TO ENTER IN THE DATABASE\n1. Execute the following command in a terminal:\n-  docker exec -it carrera_mysql mysql -u root -p\n2. Enter the following MySQL database password:\n-  {DB_CONFIG['password']}\n3. Enter in the database:\n- USE sansilvestre_db;\n\nAnd now you're in! We hope\nthat everything went ok :)")
 
     except Error as e:
-        print(f"❌ SQL error: {e}")
+        print(f"SQL error: {e}")
     except FileNotFoundError:
-        print(f"❌ '{JSON_FILE}' does not exist or is a directory.")
+        print(f"'{JSON_FILE}' does not exist or is a directory.")
     finally:
         if conn and conn.is_connected():
             cursor.close()
