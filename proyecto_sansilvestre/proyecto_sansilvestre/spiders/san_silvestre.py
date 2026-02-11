@@ -66,7 +66,7 @@ class SanSilvestreSpider(scrapy.Spider):
                     dont_filter=True 
                 )
             else:
-                item['race_distance'] = "No disponible"
+                item['race_distance'] = None
                 yield item
 
         
@@ -106,9 +106,15 @@ class SanSilvestreSpider(scrapy.Spider):
         distancia = response.xpath('//tr[td[contains(text(), "META")]]/td[last()]/text()').get()
         if not distancia:
             distancias = response.xpath('//td[contains(text(), " m")]/text()').getall()
-            distancia = distancias[-1] if distancias else "Distancia no encontrada"
+            distancia = distancias[-1] if distancias else None
+
+        if distancia:
+            try:
+                distancia = float(distancia.lower().replace('m', '').strip())
+            except ValueError:
+                distancia = None
         
-        self.distancias_cache[fecha] = distancia.strip()
+        self.distancias_cache[fecha] = distancia
         item['race_distance'] = self.distancias_cache[fecha]
         
         yield item
