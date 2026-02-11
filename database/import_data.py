@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 # Configuration
-JSON_FILE='proyecto_sansilvestre/carrera_san_silvestre.json'
+JSON_FILE='../data/carrera_san_silvestre.json'
 DB_CONFIG={
     'host': os.getenv('DB_HOST'),
     'user': os.getenv('DB_USER'),
@@ -44,7 +44,7 @@ def create_tables(cursor):
         runner_id INT NOT NULL,
         race_id INT NOT NULL,
         finish_time TIME,
-        age_group VARCHAR(10),
+        age_group VARCHAR(35),
         FOREIGN KEY (runner_id) REFERENCES runners(id) ON DELETE CASCADE,
         FOREIGN KEY (race_id) REFERENCES races(id) ON DELETE CASCADE
     );
