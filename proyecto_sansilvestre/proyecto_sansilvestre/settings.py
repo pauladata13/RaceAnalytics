@@ -18,15 +18,18 @@ ADDONS = {}
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
 ROBOTSTXT_OBEY = True
+LOG_LEVEL = "INFO"
 
 # Concurrency and throttling settings
 #CONCURRENT_REQUESTS = 16
-CONCURRENT_REQUESTS = 32      
+CONCURRENT_REQUESTS = 12
+CONCURRENT_ITEMS = 25
 CONCURRENT_REQUESTS_PER_DOMAIN = 32
-DOWNLOAD_DELAY = 0.5
+DOWNLOAD_DELAY = 0
+DOWNLOAD_TIMEOUT = 5
 
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = True
+COOKIES_ENABLED = False
 
 ITEM_PIPELINES = {
     'proyecto_sansilvestre.pipelines.SanSilvestrePipeline': 300,
@@ -70,7 +73,7 @@ FEED_EXPORT_ENCODING = 'utf-8'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
-#AUTOTHROTTLE_ENABLED = True
+AUTOTHROTTLE_ENABLED = False
 # The initial download delay
 #AUTOTHROTTLE_START_DELAY = 5
 # The maximum download delay to be set in case of high latencies
