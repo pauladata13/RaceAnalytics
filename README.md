@@ -9,7 +9,7 @@ The requirements to run this project are listed in `requirements.txt`.
 
 ## TUTORIAL
 1. Install all python dependencies listed in the file mentioned before into your environment.
-2. Run the spider to start fetching race results.
+2. At the root of the repository folder, run the spider to start fetching race results and save it to a `.json` file below `/data/` path
 ```terminal
-scrapy crawl san_silvestre -o carrera_san_silvestre.json
+scrapy crawl san_silvestre -o data/carrera_san_silvestre.json
 ```
