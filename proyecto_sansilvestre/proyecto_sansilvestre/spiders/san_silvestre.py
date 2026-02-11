@@ -1,4 +1,3 @@
-from urllib import response
 import scrapy
 from proyecto_sansilvestre.items import RunnerItem
 
@@ -6,24 +5,47 @@ class SanSilvestreSpider(scrapy.Spider):
     name = "san_silvestre"
     start_urls = ["https://sansilvestrecoruna.com/es/web/resultado/"]
     
+    # Caché para no entrar en los perfiles de todos los corredores
     distancias_cache = {}
 
     def parse(self, response):
-        eventos = response.css('a.portfolio-link')
+        eventos = response.css('div.col-6.col-sm-4.col-md-3.mb-4')
+        
         for evento in eventos:
             fecha = evento.css('p.year::text').get()
-            localizacion = evento.css('div.caption-content h3::text').get() or "A Coruña"
-            enlace_edicion = evento.css('::attr(href)').get()
+            fecha = fecha.strip() if fecha else ""
+
+            if fecha in ["2020", "2013"]:
+                self.logger.info(f"Saltando edición excluida: {fecha}")
+                continue
             
-            yield response.follow(enlace_edicion, callback=self.parse_edicion, 
-                                  meta={'fecha': fecha, 'location': localizacion})
+            localizacion = evento.css('div.caption-content h3::text').get() or "A Coruña"
+            enlace_edicion = evento.css('a.portfolio-link::attr(href)').get()
+            
+            if enlace_edicion:
+                yield response.follow(
+                    enlace_edicion, 
+                    callback=self.parse_edicion, 
+                    meta={'fecha': fecha, 'location': localizacion}
+                )
 
     def parse_edicion(self, response):
-        enlaces_carrera = response.css('a[href*="competicion"]')
-        for enlace in enlaces_carrera:
+        enlaces_absoluta = []
+        for enlace in response.css('a'):
             texto = enlace.css('::text').get('').lower()
-            if "competición" in texto or "absoluta" in texto:
+            if "absoluta" in texto or "competición" in texto:
+                enlaces_absoluta.append(enlace)
+
+        if enlaces_absoluta:
+            for enlace in enlaces_absoluta:
+                self.logger.info(f"Año {response.meta['fecha']}: Entrando en carrera absoluta.")
                 yield response.follow(enlace, callback=self.parse_resultados, meta=response.meta)
+        else:
+            if response.css('table'):
+                self.logger.info(f"Año {response.meta['fecha']}: Tabla directa encontrada.")
+                yield from self.parse_resultados(response)
+            else:
+                self.logger.warning(f"Año {response.meta['fecha']}: No se encontraron resultados.")
 
     def parse_resultados(self, response):
         fecha = response.meta.get('fecha')
@@ -36,43 +58,43 @@ class SanSilvestreSpider(scrapy.Spider):
             if fecha in self.distancias_cache:
                 item['race_distance'] = self.distancias_cache[fecha]
                 yield item
-            
-
             elif perfil_url:
-               
-                yield response.follow(perfil_url, callback=self.parse_perfil, meta={'item': item})
-            
+                yield response.follow(
+                    perfil_url, 
+                    callback=self.parse_perfil, 
+                    meta={'item': item},
+                    dont_filter=True 
+                )
             else:
-                item['race_distance'] = "distancia no disponible"
+                item['race_distance'] = "No disponible"
                 yield item
-    
-        siguiente = response.css('li.next a::attr(href)').get()
-        if siguiente:
-            yield response.follow(siguiente, callback=self.parse_resultados, meta=response.meta)
 
+        
+        siguiente = response.css('li.next a::attr(href), a[aria-label="Next"]::attr(href), a.next::attr(href)').get()
+        
+        if siguiente:
+            self.logger.info(f"Año {fecha}: Pasando a la siguiente página...")
+            yield response.follow(
+                siguiente, 
+                callback=self.parse_resultados, 
+                meta=response.meta,
+                dont_filter=True 
+            )
 
     def extraer_datos_tabla(self, fila, meta):
         item = RunnerItem()
-        item['runner_name'] = f"{fila.css('td.nombre a::text').get('')} {fila.css('td.apellidos a::text').get('')}".strip()
+        nombre = fila.css('td.nombre a::text').get('')
+        apellidos = fila.css('td.apellidos a::text').get('')
+        item['runner_name'] = f"{nombre} {apellidos}".strip()
+        
         item['finish_time'] = fila.css('td.tiempo_display::text').get()
 
-        # Get age group w/o place in race
-        age_group=None
-        raw_agegroup=fila.css('td.get_puesto_categoria_display::text').get()
-        if raw_agegroup and "-" in raw_agegroup:
-            splitted_agegroup=raw_agegroup.split("-")
-            age_group=splitted_agegroup[0]
+        raw_agegroup = fila.css('td.get_puesto_categoria_display::text').get()
+        item['age_group'] = raw_agegroup.split("-")[0].strip() if raw_agegroup and "-" in raw_agegroup else None
 
-        item['age_group'] = age_group
+        raw_gender = fila.css('td.get_puesto_sexo_display::text').get()
+        item['gender'] = raw_gender.split("-")[0].strip() if raw_gender and "-" in raw_gender else None
 
-        # Get gender w/o place in race
-        gender=None
-        raw_gender=fila.css('td.get_puesto_sexo_display::text').get()
-        if raw_gender and "-" in raw_gender:
-            splitted_gender=raw_gender.split("-")
-            gender=splitted_gender[0]
-
-        item['gender'] = gender
         item['race_date'] = meta.get('fecha')
         item['location'] = meta.get('location')
         return item
@@ -84,10 +106,9 @@ class SanSilvestreSpider(scrapy.Spider):
         distancia = response.xpath('//tr[td[contains(text(), "META")]]/td[last()]/text()').get()
         if not distancia:
             distancias = response.xpath('//td[contains(text(), " m")]/text()').getall()
-            distancia = distancias[-1] if distancias else None
+            distancia = distancias[-1] if distancias else "Distancia no encontrada"
         
-      
-        self.distancias_cache[fecha] = distancia
+        self.distancias_cache[fecha] = distancia.strip()
+        item['race_distance'] = self.distancias_cache[fecha]
         
-        item['race_distance'] = distancia
         yield item
