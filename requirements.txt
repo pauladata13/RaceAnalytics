@@ -1,0 +1,14 @@
+Programs to install:
+-   WSL (optional): Linux environment to execute the whole project quickly
+-   VSCode (optional): IDE to view and edit code.
+-   Docker Container: To containerize the MySQL Database.
+-   Python: Necessary to execute all scripts.
+-   A web navigator (Chrome, Firefox...): Any web navigator should work fine. 
+Python dependencies (pip install):
+-   python-dotenv
+-   mysql-connector-python
+-   scrapy
+-   pandas
+-   numpy
+-   streamlit
+-   plotly
