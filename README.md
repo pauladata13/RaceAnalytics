@@ -24,3 +24,9 @@ scrapy crawl san_silvestre -o data/carrera_san_silvestre.json
 cd database
 python import_data.py
 ```
+5. Now that the MySQL database has the data that was fetched, now we can execute the web application crafted with Streamlit to see graphs and stats. To do so, move to `/dashboard/` directory and execute the following command
+```bash
+cd dashboard
+streamlit run dashboard.py
+```
+You can now view your Streamlit app in your browser by clicking in one of the links that appear on your terminal.
