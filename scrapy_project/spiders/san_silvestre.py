@@ -8,6 +8,8 @@ class SanSilvestreSpider(scrapy.Spider):
     # Caché para no entrar en los perfiles de todos los corredores
     distancias_cache = {}
 
+    #En el método parse, recorremos las ediciones de la carrera y filtramos las que no nos interesan (2020 y 2013). 
+    # Para cada edición válida, seguimos el enlace a su página de resultados.
     def parse(self, response):
         eventos = response.css('div.col-6.col-sm-4.col-md-3.mb-4')
         
@@ -29,6 +31,9 @@ class SanSilvestreSpider(scrapy.Spider):
                     meta={'fecha': fecha, 'location': localizacion}
                 )
 
+    #En esta función buscamos enlaces relacionados con la carrera absoluta o competición general. 
+    # Si no los encontramos, intentamos extraer los resultados directamente de la página de la edición.
+
     def parse_edicion(self, response):
         enlaces_absoluta = []
         for enlace in response.css('a'):
@@ -46,6 +51,9 @@ class SanSilvestreSpider(scrapy.Spider):
                 yield from self.parse_resultados(response)
             else:
                 self.logger.warning(f"Año {response.meta['fecha']}: No se encontraron resultados.")
+
+    #En la funcionde parse_resultados extraemos los datos de cada corredor y, si no tenemos la distancia de la carrera en caché, 
+    # seguimos el enlace al perfil del corredor para obtenerla. También manejamos la paginación de los resultados.
 
     def parse_resultados(self, response):
         fecha = response.meta.get('fecha')
@@ -80,7 +88,8 @@ class SanSilvestreSpider(scrapy.Spider):
                 meta=response.meta,
                 dont_filter=True 
             )
-
+    #La función extraer_datos_tabla se encarga de extraer los datos básicos de cada corredor desde la fila de la tabla,
+    # incluyendo el nombre, tiempos, grupo de edad y género. También añade la fecha y ubicación de la carrera al item para su posterior uso en el perfil del corredor.
     def extraer_datos_tabla(self, fila, meta):
         item = RunnerItem()
         nombre = fila.css('td.nombre a::text').get('')
@@ -99,6 +108,10 @@ class SanSilvestreSpider(scrapy.Spider):
         item['location'] = meta.get('location')
         return item
 
+     #La función parse_perfil se encarga de extraer la distancia de la carrera desde el perfil del corredor. 
+     # Primero intenta encontrar la distancia en la tabla de resultados, y si no la encuentra, busca cualquier texto que contenga " m" para obtener la distancia. 
+     # Luego, almacena esta información en caché para evitar futuras solicitudes al perfil de otros corredores de la misma edición.
+    
     def parse_perfil(self, response):
         item = response.meta['item']
         fecha = item['race_date']
